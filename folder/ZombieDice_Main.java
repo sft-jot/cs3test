@@ -1,16 +1,18 @@
 import java.awt.*;
 import java.util.*;
 
+
 public class ZombieDice_Main {
     public static void main(String[] args){
         Scanner sc = new Scanner(System.in);
         System.out.println("How many players will be playing (2-5):");
         int players = sc.nextInt();
         sc.nextLine();
+        System.out.println();
         String[] names = new String[players];
         int[] scores = new int[players];
         for (int i = 0; i < players; i++){
-            System.out.println("Enter a player's name");
+            System.out.println("Enter a player's name:");
             names[i] = sc.nextLine();
         }
         shuffleNames(names);
@@ -20,7 +22,7 @@ public class ZombieDice_Main {
             for (int i = 0; i < players; i++){
                 String person = names[i];
                 int current = scores[i];
-                System.out.println(players+" it is your turn and you have "+current+" brains in your bank");
+                System.out.println("\n"+person+" it is your turn and you have "+current+" brains in your bank");
                 ArrayList<ZombieDie> hand = new ArrayList<>();
                 ArrayList<ZombieDie> brains = new ArrayList<>();
                 ArrayList<ZombieDie> shots = new ArrayList<>();
@@ -31,15 +33,20 @@ public class ZombieDice_Main {
                     System.out.println("        Turn summary:");
                     System.out.println("                Brains:  "+brains);
                     System.out.println("                Shots:   "+shots);
-                    System.out.println("                Runners: ");
+                    System.out.println("                Runners: "+runners);
                     System.out.println("        1. Keep Going");
                     System.out.println("        2. Stop & add to bank");
                     System.out.println("        Enter selection:");
                     int pick = sc.nextInt();
                     if (pick == 2){
                         scores[i] += brains.size();
-                        System.out.println("You ate " + brains.size() + " brains this turn giving you " + scores[i] + " brains now in your bank.");
+                        System.out.println("\n        You ate " + brains.size() + " brains this turn giving you " + scores[i] + " brains now in your bank.");
                         turn = false;
+                        String winner = findWinner(names,scores);
+                        if (winner!=null){
+                            System.out.println(winner+" wins with "+scores[i]+" brains!");
+                            win = true;
+                        }
                     } else if (pick == 1){
                         hand.clear();
                         hand.addAll(runners);
@@ -52,26 +59,19 @@ public class ZombieDice_Main {
                                 break;
                             }
                         }
-                        System.out.println("        After drawing you have the following dice: " + hand);
-                        System.out.println("                Rolling...");
                         for (int r = 0; r < hand.size(); r++){
-                            ZombieDie dice = bucket.draw();
-                            if(dice != null){
-                                hand.add(dice);
-                            } else {
-                                break;
-                            }
+                            hand.get(r).setValue(ZombieDie.NOT_ROLLED);
                         }
                         System.out.println("        After drawing you have the following dice: " + hand);
                         System.out.println("                Rolling...");
                         for (int r = 0; r < hand.size(); r++){
-                            ZombieDie dice = hand.get(i);
+                            ZombieDie dice = hand.get(r);
                             dice.roll();
-                            if(dice.getValue() == 2){
+                            if (dice.getValue() == ZombieDie.BRAIN){
                                 brains.add(dice);
-                            } else if (dice.getValue() == 3) {
+                            }else if (dice.getValue() == ZombieDie.SHOT){
                                 shots.add(dice);
-                            } else if (dice.getValue() == 1) {
+                            } else if (dice.getValue() == ZombieDie.RUNNER){
                                 runners.add(dice);
                             }
                         }
@@ -83,15 +83,22 @@ public class ZombieDice_Main {
                         }
                     }
                 }
+                if (win){
+                    break;
+                }
             }
         }
 
 
+
+
     }
+
 
     public static void shuffleNames(String[] names){
         Collections.shuffle(Arrays.asList(names));
     }
+
 
     public static String findWinner(String[] names, int[] scores){
         for (int i = 0; i < scores.length; i++){
@@ -103,4 +110,7 @@ public class ZombieDice_Main {
     }
 
 
+
+
 }
+
